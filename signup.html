@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Sign Up - NoteNest</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <h2>📝 Student Registration</h2>
+            <p style="color: #64748b; margin-bottom: 20px;">Create an account to join NoteNest</p>
+            
+            <form id="signupForm">
+                <div class="input-group">
+                    <label for="fullName">Full Name</label>
+                    <input type="text" id="fullName" placeholder="e.g., John Doe" required>
+                </div>
+                <div class="input-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" placeholder="e.g., student@gmail.com" required>
+                </div>
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="Create a strong password" required>
+                </div>
+                <div class="input-group">
+                <label for="confirmPassword">Confirm Password</label>
+                <input type="password" id="confirmPassword" placeholder="Retype your password" required>
+            </div>
+                <button type="button" onclick="registerUser()" class="btn">Register & Sign Up</button>
+            </form>
+            
+            <p style="margin-top: 20px; font-size: 14px; color: #475569;">
+                Already have an account? <a href="index.html" style="color: #4f46e5; font-weight: 600; text-decoration: none;">Sign In</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+    // Your Firebase Configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyBKkjDB1ickFQ9FJdvGENQQ7ZeLk7hnBGI",
+        authDomain: "class-notes-hub-61b20.firebaseapp.com",
+        projectId: "class-notes-hub-61b20",
+        storageBucket: "class-notes-hub-61b20.appspot.com",
+        messagingSenderId: "112494248768",
+        appId: "1:112494248768:web:ea968e4f0c2ffcc39c70a5",
+        measurementId: "G-69S13B95M6"
+    };
+    
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    async function registerUser() {
+        const name = document.getElementById('fullName').value.trim();
+        const email = document.getElementById('email').value.trim();
+        
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailPattern.test(email)) {
+            alert("Please enter a valid email address (e.g., student@gmail.com)!");
+            return;
+        }
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+
+        // ভ্যালিডেশন চেক
+        if (password !== confirmPassword) {
+            alert("Passwords do not match! Please retype.");
+            return;
+        }
+        if (password.length > 6 || password.length < 5) {
+            alert("Password must be 5 to 6 characters long!");
+            return;
+        }
+        const hasCapitalLetter = /[A-Z]/.test(password);
+        if (!hasCapitalLetter) {
+            alert("Password must contain at least one capital letter (A-Z)!");
+            return;
+        }
+
+        try {
+            // ডুপ্লিকেট ইমেইল চেক
+            const userDoc = await db.collection('users').doc(email).get();
+            if (userDoc.exists) {
+                alert('⚠️ This email is already registered! Try logging in.');
+                return;
+            }
+            
+            // ডাটাবেজে ইউজার সেভ করা
+            await db.collection('users').doc(email).set({
+                name: name,
+                email: email,
+                password: password,
+                role: 'student',
+                createdAt: new Date()
+            });
+
+            alert('🎉 Registration Successful! Click OK to Login.');
+            window.location.href = 'index.html'; 
+
+        } catch (error) {
+            console.error("Signup Error: ", error);
+            alert('❌ Failed to register. Please try again!');
+        }
+    }
+</script>
+</body>
+</html>
