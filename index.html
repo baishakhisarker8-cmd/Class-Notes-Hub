@@ -60,7 +60,7 @@
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
 
-            // 1. হার্ডকোডেড অ্যাডমিন চেক
+            // 1. হhardcoded admin credentials check
             if ((email === 'baishakhisarker8@gmail.com' && password === 'sreya@2696') || 
                 (email === 'aporajitaaditi@gmail.com' && password === 'aditi@06')) {
                 localStorage.setItem('role', 'admin');
@@ -69,7 +69,7 @@
                 return;
             }
 
-            // 2. ডাটাবেজ থেকে স্টুডেন্ট চেক
+            // 2. students check in Firestore
             try {
                 const userDoc = await db.collection('users').doc(email).get();
                 
@@ -77,13 +77,13 @@
                     alert('❌ User not found! Please Sign Up first.');
                 } else {
                     const userData = userDoc.data();
-                    // পাসওয়ার্ড ম্যাচিং চেক
+                    // password making sure to compare with the stored password in Firestore
                     if (userData.password === password) {
                         localStorage.setItem('role', 'student');
                         localStorage.setItem('userEmail', email);
                         window.location.href = 'dashboard.html';
                     } else {
-                        // 🛑 পাসওয়ার্ড ভুল হলে এই মেসেজটি আসবে
+                        // 🛑 if password doesn't match, show error message
                         alert('❌ Incorrect Password! Please try again.');
                     }
                 }
